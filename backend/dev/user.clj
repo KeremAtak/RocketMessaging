@@ -8,9 +8,3 @@
   ([opts]
    (app/start! opts)
    :ready))
-
-(defn reset!
-  "Stop server, reload changed namespaces, then (user/go)."
-  []
-  (app/stop!)
-  (refresh :after 'user/go))

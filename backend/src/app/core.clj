@@ -15,7 +15,7 @@
   [& {:keys [port] :or {port 3000}}]
   (when @server
    (stop!))
-  (let [handler (router/app-router)
+  (let [handler (router/app-handler)
         srv (http/run-server handler {:port port})]
     (reset! server srv)
     (println (str "http-kit running on http://localhost:" port))
