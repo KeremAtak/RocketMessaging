@@ -42,5 +42,8 @@ jobs:
       - name: Prep dependencies (optional but speeds up)
         run: clojure -P -M:test
 
+      - name: Check formatting
+        run: clojure -M:cljfmt check
+
       - name: Run tests
         run: clojure -M:test

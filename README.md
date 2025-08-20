@@ -2,9 +2,9 @@
 
 An application for real-time messaging between two or more people
 
-## Installation
+## Backend:
 
-### Backend:
+### Installation
 
 - Install Clojure. See more comprehensive guide on https://clojure.org/guides/install_clojure
 - Start the PostgreSQL container with `docker compose up -d`
@@ -12,6 +12,11 @@ An application for real-time messaging between two or more people
 - Run `(go)` in the repl. Calling it again will (re)start the server. Call with `{:migrate-clean true}` to reset existing database.
 - Backend starts on path `http://localhost:3000`. You can inspect Swagger-ui on `http://localhost:3000/swagger-ui`
 - Migrations are run via Migratus (see `https://github.com/yogthos/migratus`)
+
+### Info
+
+- Migrations are run via Migratus (see `https://github.com/yogthos/migratus`)
+- You can validate formatting via `clojure -M:cljfmt check`. Run `clojure -M:cljfmt fix` to fix issues.
 
 ## Todo list:
 
