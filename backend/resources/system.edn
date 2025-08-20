@@ -1,0 +1,30 @@
+;; resources/config.edn
+{:app
+ {:name "RocketMessaging"
+  :port #long #or [#env PORT 3000]}
+
+ ;; Database pieces (env with defaults)
+ :db
+ {:host     #or [#env PGHOST "localhost"]
+  :port     #long #or [#env PGPORT 5432]
+  :name     #or [#env POSTGRES_DB "rocket-local"]
+  :user     #or [#env POSTGRES_USER "rocketman"]
+  :password #or [#env POSTGRES_PASSWORD "eltonjohn"]}
+
+ ;; Construct a JDBC URL once, reuse everywhere
+ :jdbc-url
+ #join ["jdbc:postgresql://"
+        #ref [:db :host] ":" #ref [:db :port] "/"
+        #ref [:db :name]
+        "?user="     #ref [:db :user]
+        "&password=" #ref [:db :password]
+        "&ApplicationName=" #ref [:app :name]]
+
+ ;; Migratus config: run with the JDBC URL above
+ :migratus
+ {:store                :database
+  :migration-dir        #or [#env MIGRATIONS_DIR "migrations"]
+  :migration-table-name #or [#env MIGRATION_TABLE "schema_migrations"]
+  :db {:connection-uri #ref [:jdbc-url]}}
+
+ }
