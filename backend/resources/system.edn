@@ -6,8 +6,9 @@
  ;; Database pieces (env with defaults)
  :db
  {:host     #or [#env PGHOST "localhost"]
+  :dbtype   "postgresql"
   :port     #long #or [#env PGPORT 5432]
-  :name     #or [#env POSTGRES_DB "rocket-local"]
+  :dbname   #or [#env POSTGRES_DB "rocket-local"]
   :user     #or [#env POSTGRES_USER "rocketman"]
   :password #or [#env POSTGRES_PASSWORD "eltonjohn"]}
 
@@ -15,10 +16,12 @@
  :jdbc-url
  #join ["jdbc:postgresql://"
         #ref [:db :host] ":" #ref [:db :port] "/"
-        #ref [:db :name]
+        #ref [:db :dbname]
         "?user="     #ref [:db :user]
         "&password=" #ref [:db :password]
         "&ApplicationName=" #ref [:app :name]]
+
+ :jwt-secret "gRFNJlf2cznm69a2LUJ+nYiv9o5VfGpUHH8ipZx+yoCX9xQew0GOr8oCz/04bPYE"
 
  ;; Migratus config: run with the JDBC URL above
  :migratus

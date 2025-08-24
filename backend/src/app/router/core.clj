@@ -1,20 +1,45 @@
 (ns app.router.core
   (:require [reitit.ring :as ring]
+            [reitit.ring.coercion :as rrc]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
-            [reitit.ring.middleware.muuntaja :as ring.muuntaja]
-            [muuntaja.core :as m]))
+            [reitit.coercion.malli :as coercion.malli]
+            [reitit.ring.middleware.muuntaja :as rrmm]
+            [reitit.ring.middleware.parameters :as rrmp]
+            [malli.transform :as mt]
+            [muuntaja.core :as m]
+            [app.middleware.auth :as middleware.auth]
+            [app.chats.routes :as chats.routes]))
 
 (def router-config
-  (let [muuntaja (m/create m/default-options)]
-    {:data {:muuntaja m/instance
-            :middleware [ring.muuntaja/format-middleware]}}))
+  {:data {:coercion (coercion.malli/create
+                     {:transformers {:body   {:default mt/json-transformer}    ; for request bodies
+                                     :string {:default mt/string-transformer}  ; for path/query/headers
+                                     :response {:default mt/json-transformer} ; optional, for responses
+                                     }})
+          :muuntaja (m/create)
+          :middleware [rrmp/parameters-middleware
+                       rrmm/format-negotiate-middleware
+                       rrmm/format-response-middleware   ;; <-- encodes response bodies
+                       rrmm/format-request-middleware
+                       rrc/coerce-exceptions-middleware
+                       rrc/coerce-request-middleware
+                       rrc/coerce-response-middleware]
+          :securityDefinitions {:BearerAuth
+                                {:type "apiKey"
+                                 :name "Authorization"
+                                 :in   "header"}}}})
 
 (defn app-router
   "Creates the router, consuming the configuration"
-  []
+  [env]
   (ring/router
-   [["" {:no-doc true}
+   [["" {:no-doc  true
+         :swagger {:securityDefinitions
+                   {:BearerAuth
+                    {:type "apiKey"
+                     :name "Authorization"
+                     :in   "header"}}}}
      ["/ping" {:name ::ping
                :get  {:summary "Used for health checks"
                       :handler (fn [_]
@@ -23,23 +48,19 @@
                                   :body    "pong"})}}]
      ["/swagger.json" {:get {:swagger {:info {:title    "RocketMessaging backend Api"
                                               :basePath "/"}}
+                             :basePath "/"
                              :handler (swagger/create-swagger-handler)}}]]
     ["/api"
-     ["/foo" {:swagger {:tags ["Example"]}}
-      ["" {:name ::foo
-           :get {:summary "TODO: Remove once actual endpoints added"
-                 :responses {:status 200 :body string?}
-                 :handler (fn [_]
-                            {:status  200
-                             :headers {"Content-Type" "text/plain"}
-                             :body    "bar"})}}]]]]
-   router-config))
+     {:middleware  [[middleware.auth/wrap-jwt-auth env]]
+      :swagger     {:security [{:BearerAuth []}]}}
+     (chats.routes/form-routes env)]]
+   (merge {:data {:ds (:ds env)}} router-config)))
 
 (defn app-handler
   "Creates the application handler, consuming the router and helpers such as swagger.json."
-  []
+  [env]
   (ring/ring-handler
-   (app-router)
+   (app-router env)
    (ring/routes
     (swagger-ui/create-swagger-ui-handler {:path "/swagger-ui"})
     (ring/create-default-handler))))

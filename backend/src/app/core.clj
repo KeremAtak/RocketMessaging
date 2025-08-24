@@ -17,9 +17,10 @@
   "Start http-kit with the Reitit app."
   [& [opts]]
   (stop!)
-  (let [{:keys [app] :as config} (app-config/read-config)
-        handler (router/app-handler)
+  (let [{:keys [app db jwt-secret] :as config} (app-config/read-config)
         port (:port app)
+        ds (app.db/get-datasource db)
+        handler (router/app-handler {:ds ds :jwt-secret jwt-secret})
         srv (http/run-server handler {:port port})]
     (reset! server srv)
     (migratus/migrate (:migratus config))

@@ -17,6 +17,7 @@ An application for real-time messaging between two or more people
 
 - Migrations are run via Migratus (see `https://github.com/yogthos/migratus`)
 - You can validate formatting via `clojure -M:cljfmt check`. Run `clojure -M:cljfmt fix` to fix issues.
+- In Swagger UI you can log in once adding Bearer <token> in front of it `(hint: use app.auth/issue-token-hs256)`
 
 ## Todo list:
 
