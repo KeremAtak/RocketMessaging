@@ -51,7 +51,7 @@
                                                :basePath "/"}}
                              :basePath "/"
                              :handler  (swagger/create-swagger-handler)}}]]
-    (user.routes/form-routes env)
+    (user.routes/form-routese env)
     ["/api"
      {:middleware [[middleware.auth/wrap-jwt-auth env]]
       :swagger    {:security [{:BearerAuth []}]}}

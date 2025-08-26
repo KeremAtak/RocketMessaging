@@ -16,7 +16,7 @@
              :handler (fn [{:keys [parameters]}]
                         (user.service/register-user! env (:body parameters)))}}]
     ["/login"
-     {:get {:summary    "Verify credentials & return JWT"
-            :parameters {:query LoginSchema}
-            :handler    (fn [{:keys [parameters]}]
-                          (user.service/login-user! env (:query parameters)))}}]]])
+     {:post {:summary    "Verify credentials & return JWT"
+             :parameters {:body LoginSchema}
+             :handler    (fn [{:keys [parameters]}]
+                           (user.service/login-user! env (:body parameters)))}}]]])
