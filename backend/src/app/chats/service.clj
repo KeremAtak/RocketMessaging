@@ -3,6 +3,15 @@
             [app.chats.db :as chats.db]
             [app.router.responses :as responses]))
 
+(defn get-chats!
+  "Gets chat messages for a user"
+  [ds params]
+  (try
+    (let [chats (chats.db/list-chats-by-user ds params)]
+      (responses/ok chats))
+    (catch Exception e
+      (responses/server-error (str "Failed to get chats: " (.getMessage e))))))
+
 (defn insert-chat-message!
   "Inserts a chat message to a group chat. Assumes that chat exists, and person is part of the group chat."
   [ds {:keys [sender-id chat-id message-body]}]

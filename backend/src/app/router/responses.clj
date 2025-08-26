@@ -4,21 +4,23 @@
   {:status status-code
    :body body})
 
+(defn ok
+  ([]
+   (ok ""))
+  ([body]
+   (response 200 body)))
+
 (defn created
   ([]
    (created ""))
   ([body]
-   (response 201 body)
-   {:status  201
-    :body    body}))
+   (response 201 body)))
 
 (defn unauthorized
   ([]
    (unauthorized ""))
   ([body]
-   (response 401 body)
-   {:status  401
-    :body    body}))
+   (response 401 body)))
 
 (defn server-error
   ([]

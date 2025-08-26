@@ -20,4 +20,4 @@
     (jwt/sign claims secret {:alg :hs256})))
 
 (comment
-  (app.auth/issue-token {:user-id 1}))
+  (app.auth/issue-token-hs256 {:user-id 1}))

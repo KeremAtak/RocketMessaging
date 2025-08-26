@@ -2,6 +2,15 @@
   (:require [app.db :as db]
             [app.util :as util]))
 
+(defn- list-chats-query [user-id {:keys [limit offset]}]
+  {:select [:c.id :c.kind :c.title :c.created-at]
+   :from   [[:chat :c]]
+   :join   [[:chat-participant :p] [:= :p.chat-id :c.id]]
+   :where  [:= :p.user-id user-id]
+   :order-by [[:c.created-at :desc]]
+   :limit  (or limit 50)
+   :offset (or offset 0)})
+
 (defn- participant-exists-query [sender-id chat-id]
   {:select [[[:exists
               {:select [1]
@@ -28,6 +37,12 @@
    :columns     [:chat-id :sender-id :body]
    :values      [[chat-id sender-id body]]
    :returning   [:id :chat-id :sender-id :body :created-at :edited-at]})
+
+(defn list-chats-by-user
+  "Returns a vector of {:id :kind :title :created-at} for the user."
+  [ds {:keys [user-id limit offset]}]
+  ;; Unqualified, lower-case keys are friendlier for the frontend:
+  (db/execute! ds (db/format (list-chats-query user-id {:limit limit :offset offset}))))
 
 (defn add-chat-participants!
   "Bulk insert participants for a chat. `user-ids` is a seq of longs.

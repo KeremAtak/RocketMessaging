@@ -3,11 +3,23 @@
 
 (defn form-routes [{:keys [ds]}]
   [["/chats" {:swagger {:tags ["chats"]}}
+    ["" {:name ::chats
+         :get {:summary "Fetches chats for an user"
+               :parameters {:query
+                            [:map
+                             [:limit  {:optional true} pos-int?]
+                             [:offset {:optional true} nat-int?]]}
+               :handler (fn [{:keys [parameters identity]}]
+                          (let [{:keys [limit offset]} (:query parameters)
+                                user-id (:user-id identity)]
+                            (chats.service/get-chats! ds {:user-id user-id
+                                                          :limit   limit
+                                                          :offset  offset})))}}]
     ["/new-chat" {:name ::new-chat
                   :post {:summary    "Create new chat with participants"
-                         :parameters  {:body [:map
-                                              [:user-ids [:vector int?]]
-                                              [:title string?]]}
+                         :parameters {:body [:map
+                                             [:user-ids [:vector int?]]
+                                             [:title string?]]}
                          :handler    (fn [{:keys [identity parameters] :as request}]
                                        (let [title (get-in parameters [:body :title])
                                              user-ids (get-in parameters [:body :user-ids])

@@ -7,7 +7,7 @@
             [reitit.ring.middleware.muuntaja :as rrmm]
             [reitit.ring.middleware.parameters :as rrmp]
             [malli.transform :as mt]
-            [muuntaja.core :as m]
+            [app.router.muuntaja :as app.muuntaja]
             [app.middleware.auth :as middleware.auth]
             [app.chats.routes :as chats.routes]))
 
@@ -17,7 +17,7 @@
                                      :string {:default mt/string-transformer}  ; for path/query/headers
                                      :response {:default mt/json-transformer} ; optional, for responses
                                      }})
-          :muuntaja (m/create)
+          :muuntaja app.muuntaja/muuntaja
           :middleware [rrmp/parameters-middleware
                        rrmm/format-negotiate-middleware
                        rrmm/format-response-middleware   ;; <-- encodes response bodies
