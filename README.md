@@ -19,8 +19,12 @@ An application for real-time messaging between two or more people
 - You can validate formatting via `clojure -M:cljfmt check`. Run `clojure -M:cljfmt fix` to fix issues.
 - In Swagger UI you can log in once adding Bearer <token> in front of it `(hint: use app.auth/issue-token-hs256)`
 
+## Frontend
+
+- Install Nodejs, Vue
+- run `npm i` and `npm run dev` to start the project
+
 ## Todo list:
 
-- Frontend (Next.js?)
 - Utilize websockets for notifications
 - AWS deployment
