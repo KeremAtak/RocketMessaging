@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import api from '../api'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const chatId = Number(route.params.id)
-const messages = ref<{ id:number; body:string; sender_id:number; created_at:string }[]>([])
+const messages = ref<{ id:number; body:string; senderId:number; createdAt:string }[]>([])
 const body = ref('')
 async function load() {
   const { data } = await api.get(`/chats/${chatId}/messages`)
@@ -17,14 +17,26 @@ async function send() {
   body.value = ''
   await load()
 }
-onMounted(load)
+
+// show newest at bottom without mutating original
+const messagesAsc = computed(() => [...messages.value].reverse())
+
+const listRef = ref<HTMLElement | null>(null)
+
+const scrollToBottom = () => nextTick(() => {
+  if (listRef.value) listRef.value.scrollTop = listRef.value.scrollHeight
+})
+
+onMounted(async () => { await load(); scrollToBottom() })
+watch(messagesAsc, scrollToBottom) // scroll on new data
+
 </script>
 
 <template>
   <div class="space-y-4">
     <ul class="space-y-2">
-      <li v-for="m in messages" :key="m.id" class="p-2 border rounded">
-        <div class="text-sm opacity-60">#{{ m.id }} — user {{ m.sender_id }}</div>
+      <li v-for="m in messagesAsc" :key="m.id" class="p-2 border rounded">
+        <div class="text-sm opacity-60">#{{ m.id }} — user {{ m.senderId }} - sent {{ m.createdAt }}</div>
         <div>{{ m.body }}</div>
       </li>
     </ul>
