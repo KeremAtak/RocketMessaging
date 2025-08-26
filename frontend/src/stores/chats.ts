@@ -1,37 +1,47 @@
 import { defineStore } from 'pinia'
 import api from '../api'
 
-type Chat = { id: number; kind: 'group'|'direct'; title?: string|null }
-type Participant = { chat_id: number; user_id: number }
-type NewChatPayload = { title: string; user_ids: number[] } // backend expects snake_case? adapt as needed
+export type Chat = { id:number; kind:'group'|'direct'; title?:string|null; createdAt?:string }
+export type Message = { id:number; chatId:number; senderId:number; body:string; createdAt?:string }
 
 export const useChatStore = defineStore('chats', {
   state: () => ({
     chats: [] as Chat[],
-    current: null as Chat|null,
-    participants: [] as Participant[],
-    loading: false,
+    messages: new Map<number, Message[]>(), // chatId -> messages DESC from server
+    loadingList: false,
+    loadingMsgs: new Set<number>(),
     error: '' as string|undefined,
   }),
   actions: {
     async fetchChats() {
-      this.loading = true
-      try { const { data } = await api.get<Chat[]>('/chats')
-            this.chats = data }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      catch (e: any) { this.error = e?.response?.data?.error || 'Failed to load chats' }
-      finally { this.loading = false }
-    },
-    async createChat(payload: NewChatPayload) {
-      this.loading = true
+      this.loadingList = true
       try {
-        const { data } = await api.post('/chats/new-chat', payload)
-        // assuming response body: { chat: {...}, participants: [...] }
-        this.current = data.chat
-        this.participants = data.participants
-        this.chats.unshift(data.chat)
-        return data
-      } finally { this.loading = false }
+        const { data } = await api.get<Chat[]>('/chats', { params: { limit: 100, offset: 0 } })
+        this.chats = data
+      } finally {
+        this.loadingList = false
+      }
+    },
+    async fetchMessages(chatId: number) {
+      if (!chatId) return
+      this.loadingMsgs.add(chatId)
+      try {
+        const { data } = await api.get<Message[]>(`/chats/${chatId}/messages`)
+        this.messages.set(chatId, data) // assume newest-first (DESC)
+      } finally {
+        this.loadingMsgs.delete(chatId)
+      }
+    },
+    async sendMessage(chatId: number, body: string) {
+      await api.post(`/chats/${chatId}/messages`, { 'message-body': body })
+      await this.fetchMessages(chatId)
+    },
+  },
+  getters: {
+    byId: (s) => (id?: number) => s.chats.find(c => c.id === id),
+    msgsAsc: (s) => (id?: number) => {
+      const arr = id ? s.messages.get(id) ?? [] : []
+      return [...arr].reverse() // newest at bottom
     },
   },
 })

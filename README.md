@@ -22,9 +22,16 @@ An application for real-time messaging between two or more people
 ## Frontend
 
 - Install Nodejs, Vue
-- run `npm i` and `npm run dev` to start the project
+- Run `npm i` and `npm run dev` to start the project
+- Frontend starts on `http://localhost:5173`
+
+### Info
+
+- You must register before you can add messages
 
 ## Todo list:
 
 - Utilize websockets for notifications
 - AWS deployment
+- Frontend typing could use help
+- More backend unit tests, more frontend tests
