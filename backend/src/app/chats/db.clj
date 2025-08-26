@@ -2,6 +2,17 @@
   (:require [app.db :as db]
             [app.util :as util]))
 
+(defn- list-by-chat-query [{:keys [user-id chat-id limit offset]}]
+  {:select   [:m.id :m.chat_id :m.sender_id :m.body :m.created_at :m.edited_at]
+   :from     [[:message :m]]
+   :join     [[:chat_participant :p] [:= :p.chat_id :m.chat_id]]
+   :where    [:and
+              [:= :p.user_id user-id]
+              [:= :m.chat_id chat-id]]
+   :order-by [[:m.created_at :desc] [:m.id :desc]]
+   :limit    (or limit 50)
+   :offset   (or offset 0)})
+
 (defn- list-chats-query [user-id {:keys [limit offset]}]
   {:select [:c.id :c.kind :c.title :c.created-at]
    :from   [[:chat :c]]
@@ -43,6 +54,13 @@
   [ds {:keys [user-id limit offset]}]
   ;; Unqualified, lower-case keys are friendlier for the frontend:
   (db/execute! ds (db/format (list-chats-query user-id {:limit limit :offset offset}))))
+
+(defn list-by-chat-id
+  "Returns messages visible to `user-id` in `chat-id`, newest first.
+   Supports optional {:limit, :offset,."
+  [ds {:keys [user-id chat-id limit offset] :as opts}]
+  (db/execute! ds
+               (db/format (list-by-chat-query opts))))
 
 (defn add-chat-participants!
   "Bulk insert participants for a chat. `user-ids` is a seq of longs.

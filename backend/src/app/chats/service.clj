@@ -12,6 +12,15 @@
     (catch Exception e
       (responses/server-error (str "Failed to get chats: " (.getMessage e))))))
 
+(defn get-chat-by-id!
+  "Gets chat messages for a user by user id"
+  [ds params]
+  (try
+    (let [chat (chats.db/list-by-chat-id ds params)]
+      (responses/ok chat))
+    (catch Exception e
+      (responses/server-error (str "Failed to get chat " (:chat-id params) " :" (.getMessage e))))))
+
 (defn insert-chat-message!
   "Inserts a chat message to a group chat. Assumes that chat exists, and person is part of the group chat."
   [ds {:keys [sender-id chat-id message-body]}]
