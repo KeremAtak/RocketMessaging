@@ -35,28 +35,28 @@
   "Creates the router, consuming the configuration"
   [env]
   (ring/router
-    [["" {:no-doc  true
-          :swagger {:securityDefinitions
-                    {:BearerAuth
-                     {:type "apiKey"
-                      :name "Authorization"
-                      :in   "header"}}}}
-      ["/ping" {:name ::ping
-                :get  {:summary "Used for health checks"
-                       :handler (fn [_]
-                                  {:status  200
-                                   :headers {"Content-Type" "text/plain"}
-                                   :body    "pong"})}}]
-      ["/swagger.json" {:get {:swagger  {:info {:title    "RocketMessaging backend Api"
-                                                :basePath "/"}}
-                              :basePath "/"
-                              :handler  (swagger/create-swagger-handler)}}]]
-     (user.routes/form-routes env)
-     ["/api"
-      {:middleware [[middleware.auth/wrap-jwt-auth env]]
-       :swagger    {:security [{:BearerAuth []}]}}
-      (chats.routes/form-routes env)]]
-    (merge {:data {:ds (:ds env)}} router-config)))
+   [["" {:no-doc  true
+         :swagger {:securityDefinitions
+                   {:BearerAuth
+                    {:type "apiKey"
+                     :name "Authorization"
+                     :in   "header"}}}}
+     ["/ping" {:name ::ping
+               :get  {:summary "Used for health checks"
+                      :handler (fn [_]
+                                 {:status  200
+                                  :headers {"Content-Type" "text/plain"}
+                                  :body    "pong"})}}]
+     ["/swagger.json" {:get {:swagger  {:info {:title    "RocketMessaging backend Api"
+                                               :basePath "/"}}
+                             :basePath "/"
+                             :handler  (swagger/create-swagger-handler)}}]]
+    (user.routes/form-routes env)
+    ["/api"
+     {:middleware [[middleware.auth/wrap-jwt-auth env]]
+      :swagger    {:security [{:BearerAuth []}]}}
+     (chats.routes/form-routes env)]]
+   (merge {:data {:ds (:ds env)}} router-config)))
 
 (defn app-handler
   "Creates the application handler, consuming the router and helpers such as swagger.json."

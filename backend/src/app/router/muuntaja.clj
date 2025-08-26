@@ -16,5 +16,5 @@
 ;; The purpose here is to convert data to more acceptable http response format
 (def muuntaja
   (m/create
-    (-> m/default-options
-        (assoc-in [:formats "application/json" :encoder-opts] json-encoder-opts))))
+   (-> m/default-options
+       (assoc-in [:formats "application/json" :encoder-opts] json-encoder-opts))))

@@ -25,5 +25,4 @@
         (is (= 200 status))
         (is (= 1 (count body)))
         (is (= "Test Chat" (:title (first body))))
-        (is (int? (:id (first body))))))
-    ))
+        (is (int? (:id (first body))))))))
