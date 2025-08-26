@@ -6,7 +6,7 @@
 (defn unsign-token [token jwt-secret]
   (jwt/unsign token jwt-secret {:alg :hs256}))
 
-(defn issue-token-hs256
+(defn issue-token
   "Return a JWT string. `secret` is a byte[] or string. `ttl-seconds` e.g. 3600."
   [{:keys [user-id ttl-seconds iss aud]
     :or {ttl-seconds 3600}}]
@@ -20,4 +20,4 @@
     (jwt/sign claims secret {:alg :hs256})))
 
 (comment
-  (app.auth/issue-token-hs256 {:user-id 1}))
+  (app.auth/issue-token {:user-id 1}))

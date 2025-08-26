@@ -3,15 +3,16 @@
             [app.db :as db]
             [app.util :as util]))
 
-(defn- select-user-query [user-id]
-  {:select [:id]
+(defn- select-user-query [query-by-key param]
+  {:select [:id :username :password-hash]
    :from :app-user
-   :where [:= :id (util/->long-safe user-id)]})
+   :where [:= query-by-key param]})
 
-(defn find-user-by-id
-  "Return minimal user row or nil."
-  [ds user-id]
-  (db/execute-one! ds (db/format (select-user-query user-id))))
+(defn find-user-by-id [ds user-id]
+  (db/execute-one! ds (db/format (select-user-query :id (util/->long-safe user-id)))))
+
+(defn find-user-by-username [ds username]
+  (db/execute-one! ds (db/format (select-user-query :username username))))
 
 (defn- insert-user-query [{:keys [username password-hash]}]
   {:insert-into :app-user

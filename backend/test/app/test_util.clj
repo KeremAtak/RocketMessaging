@@ -32,15 +32,17 @@
   (let [{:keys [db jwt-secret migratus]} (app-config/read-config)
         ds (app.db/get-datasource db)]
     (migrate migratus)
+    ;; TODO: rollbacks do not actual work. Probably because it's not enough if you tried transaction as datasource.
+    ;; Consider creating own db instance that is wiped after each test run.
     (jdbc/with-transaction [tx ds {:rollback-only true}]
                            ;; Build the app using the transactional *connection*:
       (let [handler (rring/ring-handler (app.router/app-router {:ds tx :jwt-secret jwt-secret}))
             username (str "user-" (System/currentTimeMillis))
             user     (user.db/create-user! tx {:username username
                                                :password-hash "test"})
-            token    (auth/issue-token-hs256 {:user-id (:app_user/id user)
-                                              :jwt-secret jwt-secret
-                                              :ttl-seconds 3600})]
+            token    (auth/issue-token {:user-id (:app_user/id user)
+                                        :jwt-secret  jwt-secret
+                                        :ttl-seconds 3600})]
         (reset! system* {:handler handler :ds tx :jwt-secret jwt-secret})
         (reset! test-user* user)
         (reset! test-token* token)

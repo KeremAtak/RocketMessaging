@@ -1,6 +1,6 @@
 (ns app.router.responses)
 
-(defn response [status-code body]
+(defn- response [status-code body]
   {:status status-code
    :body body})
 
@@ -21,6 +21,12 @@
    (unauthorized ""))
   ([body]
    (response 401 body)))
+
+(defn conflict
+  ([]
+   (conflict ""))
+  ([body]
+   (response 409 body)))
 
 (defn server-error
   ([]
