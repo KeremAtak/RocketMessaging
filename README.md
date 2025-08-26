@@ -21,8 +21,6 @@ An application for real-time messaging between two or more people
 
 ## Todo list:
 
-- Indexing must be taken into account
 - Frontend (Next.js?)
 - Utilize websockets for notifications
-- Authentication (Google Sign-In?)
 - AWS deployment
