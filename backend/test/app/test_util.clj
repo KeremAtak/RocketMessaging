@@ -4,6 +4,7 @@
             [reitit.ring :as rring]
             [next.jdbc :as jdbc]
             [jsonista.core :as j]
+            [migratus.core :refer [migrate]]
             [app.router.core :as app.router]
             [app.auth :as auth]
             [app.config :as app-config]
@@ -28,8 +29,9 @@
 (defn system-fixture
   "Wraps the entire test run in a single DB tx that rolls back at the end."
   [f]
-  (let [{:keys [db jwt-secret]} (app-config/read-config)
+  (let [{:keys [db jwt-secret migratus]} (app-config/read-config)
         ds (app.db/get-datasource db)]
+    (migrate migratus)
     (jdbc/with-transaction [tx ds {:rollback-only true}]
                            ;; Build the app using the transactional *connection*:
       (let [handler (rring/ring-handler (app.router/app-router {:ds tx :jwt-secret jwt-secret}))
