@@ -47,7 +47,7 @@ async function send() {
       <div v-if="loading" class="text-sm opacity-60">Loading…</div>
       <template v-else>
         <div v-for="m in messagesAsc" :key="m.id" class="p-2 border rounded">
-          <div class="text-xs opacity-60">#{{ m.id }} • user {{ m.sender_id }}</div>
+          <div class="text-xs">{{ m.username }}</div>
           <div>{{ m.body }}</div>
         </div>
         <div v-if="!messagesAsc.length" class="text-sm opacity-60">No messages yet.</div>

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import api from '../api'
 
 export type Chat = { id:number; kind:'group'|'direct'; title?:string|null; createdAt?:string }
-export type Message = { id:number; chatId:number; senderId:number; body:string; createdAt?:string }
+export type Message = { id:number; chatId:number; senderId:number; body:string; createdAt?:string; username:string }
 
 export const useChatStore = defineStore('chats', {
   state: () => ({

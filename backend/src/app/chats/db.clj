@@ -3,13 +3,14 @@
             [app.util :as util]))
 
 (defn- list-by-chat-query [{:keys [user-id chat-id limit offset]}]
-  {:select   [:m.id :m.chat_id :m.sender_id :m.body :m.created_at :m.edited_at]
+  {:select   [:m.id :m.chat-id :m.sender-id :m.body :m.created-at :m.edited-at :u.username]
    :from     [[:message :m]]
-   :join     [[:chat_participant :p] [:= :p.chat_id :m.chat_id]]
+   :join     [[:chat-participant :p] [:= :p.chat-id :m.chat-id]
+              [:app-user :u] [:= :u.id :m.sender-id]]
    :where    [:and
-              [:= :p.user_id user-id]
-              [:= :m.chat_id chat-id]]
-   :order-by [[:m.created_at :desc] [:m.id :desc]]
+              [:= :p.user-id user-id]
+              [:= :m.chat-id chat-id]]
+   :order-by [[:m.created-at :desc] [:m.id :desc]]
    :limit    (or limit 50)
    :offset   (or offset 0)})
 
