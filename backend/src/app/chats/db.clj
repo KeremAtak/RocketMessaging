@@ -28,7 +28,7 @@
    :where  [:= :p.user-id user-id]
    :group-by [:c.id :c.kind :c.title :c.created-at]
    :order-by [[[:raw "max(m.created_at) IS NULL"] :asc]
-              [[:raw "lower(c.title)"] :asc]]
+              [[:max :m.created-at] :desc]]
 
    :limit  (or limit 50)
    :offset (or offset 0)})
