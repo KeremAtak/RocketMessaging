@@ -15,11 +15,21 @@
    :offset   (or offset 0)})
 
 (defn- list-chats-query [user-id {:keys [limit offset]}]
-  {:select [:c.id :c.kind :c.title :c.created-at]
+  {:select [:c.id :c.kind :c.title :c.created-at
+            [[:max :m.created-at] :last-message-at]
+            [[:raw "(array_agg(m.body     ORDER BY m.created_at DESC, m.id DESC))[1]"]
+             :last-message-body]
+            [[:raw "(array_agg(u.username ORDER BY m.created_at DESC, m.id DESC))[1]"]
+             :last-sender-username]]
    :from   [[:chat :c]]
    :join   [[:chat-participant :p] [:= :p.chat-id :c.id]]
+   :left-join [[:message  :m] [:= :m.chat-id :c.id]
+               [:app-user :u] [:= :u.id :m.sender-id]]
    :where  [:= :p.user-id user-id]
-   :order-by [[:c.created-at :desc]]
+   :group-by [:c.id :c.kind :c.title :c.created-at]
+   :order-by [[[:raw "max(m.created_at) IS NULL"] :asc]
+              [[:raw "lower(c.title)"] :asc]]
+
    :limit  (or limit 50)
    :offset (or offset 0)})
 

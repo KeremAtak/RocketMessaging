@@ -44,18 +44,19 @@ An application for real-time messaging between two or more people
 ## Todo list:
 
 - Utilize websockets for notifications
-- Add/create chats
 - Improve visual look
 - Implement 1-on-1 chats
-- Frontend typing could be improved
+- Frontend typing could be improved (progressed)
 - More standardized kebab-casing<->camelCasing., eg in
-
 `:parameters {:body [:map
                      [:userIds [:vector int?]]
                      [:title string?]]}`
 for example.
-
 - More backend unit tests, frontend tests, e2e tests..
+- Validate all inputs, so that million character message doesnt break db etc.
+- More ui-friendliness, show limit for max characters
+- Mobile support
 - CD via github actions
+- https instead of http in github
 - Better deployment method? Push containers to ecr for example
 - Logging
