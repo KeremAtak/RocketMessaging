@@ -17,7 +17,7 @@ An application for real-time messaging between two or more people
 
 - Migrations are run via Migratus (see `https://github.com/yogthos/migratus`)
 - You can validate formatting via `clojure -M:cljfmt check`. Run `clojure -M:cljfmt fix` to fix issues.
-- In Swagger UI you can log in once adding Bearer <token> in front of it `(hint: use app.auth/issue-token-hs256)`
+- In Swagger UI you can log in once adding Bearer <token> in front of it `(hint: use app.auth/issue-token-hs256 OR via Swagger-ui login)`
 
 ## Frontend
 
@@ -35,28 +35,20 @@ An application for real-time messaging between two or more people
 - Program should start at http://localhost/
 - (backend available at http://localhost:8080/swagger-ui/#/)
 - Deploy aws container
-- Run via ssh (`ssh -i key.pem ubuntu@public-ip`) to enable settings (and test it)
-
-`sudo apt update -y
-sudo apt install -y ca-certificates curl gnupg
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
-| sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-sudo apt update -y
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-newgrp docker <<'EOF'
-docker --version
-docker compose version
-docker run --rm hello-world (might need a reset of connection before this)
-`
+- Run ssh (`ssh -i key.pem ubuntu@public-ip`) to connect to the ec2
+- (Hint: on first time you need to install docker, compose and whatnot)
+- Clone github project to /opt/rocket. Remove existing project if it's there (data will be lost)
+- Ensure you have relevant information at `.env`
+- App starts on the public-ip.
 
 ## Todo list:
 
 - Utilize websockets for notifications
-- AWS deployment
-- Frontend typing could use help
-- More backend unit tests, more frontend tests
+- Add/create chats
+- Improve visual look
+- Implement 1-on-1 chats
+- Frontend typing could be improved
+- More backend unit tests, frontend tests, e2e tests..
+- CD via github actions
+- Better deployment method? Push containers to ecr for example
+- Logging
