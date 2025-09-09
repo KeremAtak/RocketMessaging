@@ -1,6 +1,8 @@
 (ns app.chats.db
   (:require [app.db :as db]
-            [app.util :as util]))
+            [app.util :as util]
+            [app.ws :as ws]
+            [app.user.db :as user.db]))
 
 (defn- list-by-chat-query [{:keys [user-id chat-id limit offset]}]
   {:select   [:m.id :m.chat-id :m.sender-id :m.body :m.created-at :m.edited-at :u.username]
@@ -94,10 +96,13 @@
   [ds {:keys [chat-id sender-id message-body]}]
   (let [chat-id   (util/->long-safe chat-id)
         sender-id (util/->long-safe sender-id)]
-    (db/execute-one! ds
-                     (db/format (insert-message-query {:chat-id chat-id
-                                                       :sender-id sender-id
-                                                       :body message-body})))))
+    (let [row (db/execute-one! ds (db/format (insert-message-query {:chat-id   chat-id
+                                                                    :sender-id sender-id
+                                                                    :body      message-body})))]
+      (ws/notify-message! {:chat-id (:message/chat_id row)
+                           :message row
+                           :sender (user.db/find-user-by-id ds sender-id)})
+      row)))
 
 (defn person-in-group-chat? [ds {:keys [sender-id chat-id]}]
   (-> (db/execute-one! ds (db/format (participant-exists-query sender-id chat-id)))

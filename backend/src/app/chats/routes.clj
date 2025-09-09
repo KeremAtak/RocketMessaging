@@ -22,7 +22,7 @@
                                              [:title string?]]}
                          :handler    (fn [{:keys [identity parameters]}]
                                        (let [title (get-in parameters [:body :title])
-                                             user-ids (get-in parameters [:body :user-ids])
+                                             user-ids (get-in parameters [:body :userIds])
                                              sender-id    (:user-id identity)]
                                          (chats.service/create-chat-with-participants! ds {:user-ids (conj user-ids sender-id)
                                                                                            :title title})))}}]

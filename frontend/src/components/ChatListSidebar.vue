@@ -4,13 +4,28 @@ import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '../stores/chats'
 import type { CreateChatResponse } from '@/types'
 import NewChatModal from './NewChatModal.vue'
+import { useSocket } from '@/composables/useSocket'
 
 const route = useRoute()
 const router = useRouter()
 const chats = useChatStore()
 const q = ref('')
+const { on } = useSocket()
 
-onMounted(() => { if (!chats.chats.length) chats.fetchChats() })
+
+// todo: instead of dublicate socket mounts something more global?
+onMounted(() => {
+  if (!chats.chats.length)  {
+    chats.fetchChats()
+  }
+  on('chat:updated', (e) => {
+      chats.bumpChatPreview(e.chatId, {
+        body: e.lastMessageBody ?? null,
+        username: e.lastSenderUsername ?? null,
+        at: e.lastMessageAt ?? null,
+    })
+  })
+})
 const items = computed(() => chats.chats)
 
 function openChat(id:number) { router.push(`/chats/${id}`) }

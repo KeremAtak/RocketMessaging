@@ -33,6 +33,11 @@ export default defineConfig((env) => {
             // if your backend doesn’t actually include /api in routes, uncomment:
             // rewrite: (p) => p.replace(/^\/api/, ''),
           },
+          '/ws':  {
+            target: 'http://localhost:3000',
+            ws: true,
+            changeOrigin: true
+          },
         },
         build: {
           outDir: 'dist',

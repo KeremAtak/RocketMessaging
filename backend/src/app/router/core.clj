@@ -10,7 +10,8 @@
             [app.router.muuntaja :as app.muuntaja]
             [app.middleware.auth :as middleware.auth]
             [app.chats.routes :as chats.routes]
-            [app.user.routes :as user.routes]))
+            [app.user.routes :as user.routes]
+            [app.ws :as ws]))
 
 (def router-config
   {:data {:coercion (coercion.malli/create
@@ -52,6 +53,9 @@
                              :basePath "/"
                              :handler  (swagger/create-swagger-handler)}}]]
     (user.routes/form-auth-routes env)
+    ["/ws" {:name ::ws
+            :get {:handler (ws/handler env)
+                  :middleware []}}]
     ["/api"
      {:middleware [[middleware.auth/wrap-jwt-auth env]]
       :swagger    {:security [{:BearerAuth []}]}}

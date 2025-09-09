@@ -22,6 +22,7 @@ export const useChatStore = defineStore('chats', {
         this.loadingList = false
       }
     },
+
     async fetchMessages(chatId: number) {
       if (!chatId) return
       this.loadingMsgs.add(chatId)
@@ -32,10 +33,12 @@ export const useChatStore = defineStore('chats', {
         this.loadingMsgs.delete(chatId)
       }
     },
+
     async sendMessage(chatId: number, body: string) {
       await api.post(`/chats/${chatId}/messages`, { 'message-body': body })
       await this.fetchMessages(chatId)
     },
+
     async createChat(payload: { title: string; userIds: number[] }) {
       this.creatingChat = true;
       this.creatingChatError = null
@@ -52,6 +55,26 @@ export const useChatStore = defineStore('chats', {
         throw e
       } finally { this.creatingChat = false }
     },
+
+     /** Update preview + move chat to top. Creates entry if missing. */
+    bumpChatPreview(chatId: number, patch: {
+      body: string | null
+      username: string | null
+      at: string | null
+    }) {
+      const idx = this.chats.findIndex(c => c.id === chatId)
+      const updated: Chat = {
+        ...(idx >= 0 ? this.chats[idx] : { id: chatId, kind: 'group'}),
+        lastMessageBody: patch.body,
+        lastSenderUsername: patch.username,
+        lastMessageAt: patch.at,
+      }
+      if (idx >= 0) {
+        this.chats.splice(idx, 1)
+      }
+      this.chats.unshift(updated)
+    },
+
     async searchUsers(q: string) {
       const { data } = await api.get('/users', { params: { q } })
       return data as { id:number; username:string }[]

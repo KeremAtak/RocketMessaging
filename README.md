@@ -30,15 +30,18 @@ An application for real-time messaging between two or more people
 - You must register before you can add messages
 
 
-## Deployment
+## Build testing
 - Run `docker compose up -d --build web` at root. Ensure that .env has proper values.
 - Program should start at http://localhost/
 - (backend available at http://localhost:8080/swagger-ui/#/)
+
+## Deployment
 - Deploy aws container
 - Run ssh (`ssh -i key.pem ubuntu@public-ip`) to connect to the ec2
 - (Hint: on first time you need to install docker, compose and whatnot)
 - Clone github project to /opt/rocket. Remove existing project if it's there (data will be lost)
 - Ensure you have relevant information at `.env`
+- Run `docker compose up -d --build web`
 - App starts on the public-ip.
 
 ## Todo list:
