@@ -48,6 +48,13 @@ An application for real-time messaging between two or more people
 - Improve visual look
 - Implement 1-on-1 chats
 - Frontend typing could be improved
+- More standardized kebab-casing<->camelCasing., eg in
+
+`:parameters {:body [:map
+                     [:userIds [:vector int?]]
+                     [:title string?]]}`
+for example.
+
 - More backend unit tests, frontend tests, e2e tests..
 - CD via github actions
 - Better deployment method? Push containers to ecr for example

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
-import api from '../api'
-
-type User = { id: number; username: string }
+import api, { isApiError } from '../api'
+import type { User } from '@/types'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -21,16 +20,21 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('token')
     },
     async register(username: string, password: string) {
-      this.loading = true; this.error = null
+      this.loading = true;this.error = null
+
       try {
         const { data } = await api.post('/auth/register', { username, password })
         this.setToken(data.token)
         this.user = data.user
         return data.user
-      } catch (e: any) {
-        this.error = e?.response?.data?.error || 'Registration failed'
-        throw e
-      } finally { this.loading = false }
+      } catch (e: unknown) {
+        this.error = isApiError(e) && e.response
+          ? (e.response.data?.error ?? 'Failed to register')
+          : 'Failed to register';
+        throw e;
+      } finally {
+        this.loading = false
+      }
     },
     async login(username: string, password: string) {
       this.loading = true; this.error = null
@@ -39,9 +43,11 @@ export const useAuthStore = defineStore('auth', {
         this.setToken(data.token)
         this.user = data.user
         return data.user
-      } catch (e: any) {
-        this.error = e?.response?.data?.error || 'Login failed'
-        throw e
+      } catch (e: unknown) {
+        this.error = isApiError(e) && e.response
+          ? (e.response.data?.error ?? 'Login failed')
+          : 'Login failed';
+        throw e;
       } finally { this.loading = false }
     },
   },

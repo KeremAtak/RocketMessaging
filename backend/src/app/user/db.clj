@@ -8,6 +8,20 @@
    :from :app-user
    :where [:= query-by-key param]})
 
+(defn- search-users-query
+  [q limit user-id]
+  (let [q (or q "")
+        lim (-> (or limit 20) (max 1) (min 100))
+        like [:ilike :username (str "%" q "%")]
+        where (if user-id
+                [:and like [:<> :id (util/->long-safe user-id)]]
+                like)]
+    {:select   [:id :username]
+     :from     :app-user
+     :where    where
+     :order-by [[:username :asc]]
+     :limit    lim}))
+
 (defn find-user-by-id [ds user-id]
   (db/execute-one! ds (db/format (select-user-query :id (util/->long-safe user-id)))))
 
@@ -32,3 +46,12 @@
     (db/execute-one! ds
                      (db/format (insert-user-query {:username username
                                                     :password-hash password-hash})))))
+
+(defn search-users!
+  "Return users matching `q` (case-insensitive) as [{:id :username} ...].
+   When `q` is blank/nil, returns []. Optional keys: :limit (default 20), :exclude-user-id."
+  [ds {:keys [q limit user-id]}]
+  (let [q* (some-> q str/trim)]
+    (if (str/blank? q*)
+      []
+      (db/execute! ds (db/format (search-users-query q* limit user-id))))))

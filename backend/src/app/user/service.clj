@@ -30,3 +30,9 @@
                                      :ttl-seconds 3600})]
         (responses/ok {:token token :user {:id id :username username}}))
       (responses/unauthorized {:error "invalid-credentials"}))))
+
+(defn search-users! [{:keys [ds]} params]
+  (try
+    (responses/ok (user.db/search-users! ds params))
+    (catch Exception _
+      (responses/server-error {:error "unexpected"}))))

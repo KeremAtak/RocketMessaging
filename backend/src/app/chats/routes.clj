@@ -18,7 +18,7 @@
     ["/new-chat" {:name ::new-chat
                   :post {:summary    "Create new chat with participants"
                          :parameters {:body [:map
-                                             [:user-ids [:vector int?]]
+                                             [:userIds [:vector int?]]
                                              [:title string?]]}
                          :handler    (fn [{:keys [identity parameters]}]
                                        (let [title (get-in parameters [:body :title])

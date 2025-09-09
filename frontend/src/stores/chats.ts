@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import api from '../api'
-
-export type Chat = { id:number; kind:'group'|'direct'; title?:string|null; createdAt?:string }
-export type Message = { id:number; chatId:number; senderId:number; body:string; createdAt?:string; username:string }
+import api, { isApiError } from '../api'
+import type { Chat } from '@/types';
+import type { Message } from 'postcss';
 
 export const useChatStore = defineStore('chats', {
   state: () => ({
@@ -10,7 +9,8 @@ export const useChatStore = defineStore('chats', {
     messages: new Map<number, Message[]>(), // chatId -> messages DESC from server
     loadingList: false,
     loadingMsgs: new Set<number>(),
-    error: '' as string|undefined,
+    creatingChat: false,
+    creatingChatError: '' as string|null,
   }),
   actions: {
     async fetchChats() {
@@ -35,6 +35,26 @@ export const useChatStore = defineStore('chats', {
     async sendMessage(chatId: number, body: string) {
       await api.post(`/chats/${chatId}/messages`, { 'message-body': body })
       await this.fetchMessages(chatId)
+    },
+    async createChat(payload: { title: string; userIds: number[] }) {
+      this.creatingChat = true;
+      this.creatingChatError = null
+      try {
+        const { data } = await api.post('/chats/new-chat', payload)
+        if (data?.chat) {
+          this.chats = [data.chat, ...this.chats.filter(c => c.id !== data.chat.id)]
+        }
+        return data
+      } catch (e: unknown) {
+        this.creatingChatError = isApiError(e) && e.response
+        ? (e.response.data?.error ?? 'Failed to create chat')
+        : 'Failed to create chat'
+        throw e
+      } finally { this.creatingChat = false }
+    },
+    async searchUsers(q: string) {
+      const { data } = await api.get('/users', { params: { q } })
+      return data as { id:number; username:string }[]
     },
   },
   getters: {

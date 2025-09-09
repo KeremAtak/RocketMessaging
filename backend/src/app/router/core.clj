@@ -51,11 +51,12 @@
                                                :basePath "/"}}
                              :basePath "/"
                              :handler  (swagger/create-swagger-handler)}}]]
-    (user.routes/form-routes env)
+    (user.routes/form-auth-routes env)
     ["/api"
      {:middleware [[middleware.auth/wrap-jwt-auth env]]
       :swagger    {:security [{:BearerAuth []}]}}
-     (chats.routes/form-routes env)]]
+     (chats.routes/form-routes env)
+     (user.routes/form-user-routes env)]]
    (merge {:data {:ds (:ds env)}} router-config)))
 
 (defn app-handler
