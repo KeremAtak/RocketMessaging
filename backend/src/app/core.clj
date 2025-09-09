@@ -2,7 +2,8 @@
   (:require [org.httpkit.server :as http]
             [migratus.core :as migratus]
             [app.config :as app-config]
-            [app.router.core :as router]))
+            [app.router.core :as router])
+  (:gen-class))
 
 (defonce server (atom nil))
 

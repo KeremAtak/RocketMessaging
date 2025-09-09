@@ -1,4 +1,3 @@
-;; resources/config.edn
 {:app
  {:name "RocketMessaging"
   :port #long #or [#env PORT 3000]}

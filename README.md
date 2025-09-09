@@ -29,6 +29,31 @@ An application for real-time messaging between two or more people
 
 - You must register before you can add messages
 
+
+## Deployment
+- Run `docker compose up -d --build web` at root. Ensure that .env has proper values.
+- Program should start at http://localhost/
+- (backend available at http://localhost:8080/swagger-ui/#/)
+- Deploy aws container
+- Run via ssh (`ssh -i key.pem ubuntu@public-ip`) to enable settings (and test it)
+
+`sudo apt update -y
+sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
+| sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+sudo apt update -y
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+newgrp docker <<'EOF'
+docker --version
+docker compose version
+docker run --rm hello-world (might need a reset of connection before this)
+`
+
 ## Todo list:
 
 - Utilize websockets for notifications
